@@ -53,23 +53,23 @@ def echo(update: Update, context: CallbackContext) -> None:
             if "hôm nay" in message_text:
                 no_off = 1
 
-        if "sap" in message_text.lower():
-            is_sap = 1
-        else:
-            is_sap = 0
-
-        from datetime import datetime
-        today = datetime.now()
-
-        query = """
-        INSERT INTO public."PCN_work_time" ("UserId", "Username", "Year", "Month", "Day", "Date", "No_off", "Is_sap")
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(query, (user_id, username, today.year, today.month, today.day, today, no_off, is_sap))
-        conn.commit()
-
-        # Gửi phản hồi
-        update.message.reply_text(f"BOT đã ghi nhận {no_off} ngày nghỉ {is_sap} phép cho {first_name} {last_name} ({username}).")
+            if "sap" in message_text.lower():
+                is_sap = 1
+            else:
+                is_sap = 0
+    
+            from datetime import datetime
+            today = datetime.now()
+    
+            query = """
+            INSERT INTO public."PCN_work_time" ("UserId", "Username", "Year", "Month", "Day", "Date", "No_off", "Is_sap")
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(query, (user_id, username, today.year, today.month, today.day, today, no_off, is_sap))
+            conn.commit()
+    
+            # Gửi phản hồi
+            update.message.reply_text(f"BOT đã ghi nhận {no_off} ngày nghỉ {is_sap} phép cho {first_name} {last_name} ({username}).")
 
     except Exception as e:
         update.message.reply_text(f"Đã xảy ra lỗi: {e}")
