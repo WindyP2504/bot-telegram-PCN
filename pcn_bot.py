@@ -2,6 +2,7 @@ import psycopg2
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import re
+from datetime import datetime, timedelta
 
 def connect_db():
     conn = psycopg2.connect(
@@ -14,7 +15,6 @@ def connect_db():
     return conn
 
 def ensure_user_exists(cursor, user_id, username, first_name, last_name):
-    # Kiểm tra xem UserId đã tồn tại hay chưa
     cursor.execute("""SELECT COUNT(*) FROM public."PCN_employees" WHERE "UserId" = %s""", (user_id,))
     if cursor.fetchone()[0] == 0:
         # Nếu chưa tồn tại, thêm mới
@@ -23,9 +23,6 @@ def ensure_user_exists(cursor, user_id, username, first_name, last_name):
         VALUES (%s, %s, %s, %s)
         """
         cursor.execute(query, (user_id, username, first_name, last_name))
-
-
-
 
 # Hàm xử lý tin nhắn và cập nhật cơ sở dữ liệu
 def echo(update: Update, context: CallbackContext) -> None:
@@ -41,6 +38,7 @@ def echo(update: Update, context: CallbackContext) -> None:
 
     is_sap = 0
     no_off = 0
+    today = datetime.now()
 
     try:
         ensure_user_exists(cursor, user_id, username, first_name, last_name)
@@ -49,18 +47,21 @@ def echo(update: Update, context: CallbackContext) -> None:
             match = re.search(r"nghỉ (\d{1,2}) ngày", message_text)
             if match:
                 no_off = int(match.group(1))
-
-            if "hôm nay" in message_text:
+            elif "hôm nay" in message_text.lower():
                 no_off = 1
+                today = datetime.now()
+            elif "ngày mai" in message_text.lower():
+                no_off = 1
+                today = datetime.now() + timedelta(days=1)
+            elif "sáng mai" in message_text.lower() or "chiều mai" in message_text.lower():
+                no_off = 0.5
+                today = datetime.now() + timedelta(days=1)
+            elif any(phrase in message_text.lower() for phrase in ["sáng nay", "chiều nay"]):
+                no_off = 0.5
 
             if "sap" in message_text.lower():
                 is_sap = 1
-            else:
-                is_sap = 0
-    
-            from datetime import datetime
-            today = datetime.now()
-    
+
             query = """
             INSERT INTO public."PCN_work_time" ("UserId", "Username", "Year", "Month", "Day", "Date", "No_off", "Is_sap")
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
