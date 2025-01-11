@@ -61,6 +61,11 @@ def echo(update: Update, context: CallbackContext) -> None:
 
             if "sap" in message_text.lower():
                 is_sap = 1
+                # Gửi phản hồi
+                update.message.reply_text(f"BOT đã ghi nhận {no_off} ngày nghỉ có phép cho {first_name} {last_name} ({username}).")
+            else:
+                # Gửi phản hồi
+                update.message.reply_text(f"BOT đã ghi nhận {no_off} ngày nghỉ không phép cho {first_name} {last_name} ({username}).")
 
             query = """
             INSERT INTO public."PCN_work_time" ("UserId", "Username", "Year", "Month", "Day", "Date", "No_off", "Is_sap")
@@ -68,10 +73,6 @@ def echo(update: Update, context: CallbackContext) -> None:
             """
             cursor.execute(query, (user_id, username, today.year, today.month, today.day, today, no_off, is_sap))
             conn.commit()
-    
-            # Gửi phản hồi
-            update.message.reply_text(f"BOT đã ghi nhận {no_off} ngày nghỉ {is_sap} phép cho {first_name} {last_name} ({username}).")
-
     except Exception as e:
         update.message.reply_text(f"Đã xảy ra lỗi: {e}")
 
