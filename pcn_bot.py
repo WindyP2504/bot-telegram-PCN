@@ -43,8 +43,8 @@ def echo(update: Update, context: CallbackContext) -> None:
     try:
         ensure_user_exists(cursor, user_id, username, first_name, last_name)
 
-        if "nghỉ" in message_text:
-            match = re.search(r"nghỉ (\d{1,2}) ngày", message_text)
+        if "nghỉ" in message_text.lower():
+            match = re.search(r"nghỉ (\d{1,2}) ngày", message_text.lower())
             if match:
                 no_off = int(match.group(1))
             elif "hôm nay" in message_text.lower():
