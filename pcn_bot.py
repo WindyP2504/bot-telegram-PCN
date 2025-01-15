@@ -84,7 +84,7 @@ def echo(update: Update, context: CallbackContext) -> None:
 # Hàm main để khởi động bot
 def main():
     # Token bot của bạn
-    TOKEN = "7901367514:AAFfM-Hjk3ULmyd8Ol7TYoem7PAoQ1pobGU"
+    TOKEN = "7901367514:AAH8Zu7Li88Lg2rWgKPdsVxOyO5RGnAB0wc"
 
     # Tạo Updater và Dispatcher
     updater = Updater(TOKEN)
