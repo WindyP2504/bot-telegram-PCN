@@ -44,12 +44,12 @@ def echo(update: Update, context: CallbackContext) -> None:
         ensure_user_exists(cursor, user_id, username, first_name, last_name)
 
         if "nghỉ" in message_text.lower():
-            match = re.search(r"nghỉ (\d{1,2}) ngày", message_text.lower())
+
+            match = re.search(r"nghỉ (\d{1,2}(\.\d{1,2})?) ngày", message_text.lower())
             if match:
-                no_off = int(match.group(1))
+                no_off = float(match.group(1))
             elif "hôm nay" in message_text.lower():
                 no_off = 1
-                today = datetime.now()
             elif "ngày mai" in message_text.lower():
                 no_off = 1
                 today = datetime.now() + timedelta(days=1)
@@ -59,13 +59,14 @@ def echo(update: Update, context: CallbackContext) -> None:
             elif any(phrase in message_text.lower() for phrase in ["sáng nay", "chiều nay"]):
                 no_off = 0.5
 
-            if "sap" in message_text.lower():
-                is_sap = 1
-                # Gửi phản hồi
-                update.message.reply_text(f"BOT đã ghi nhận {no_off} ngày nghỉ có phép cho {first_name} {last_name} ({username}).")
-            else:
-                # Gửi phản hồi
-                update.message.reply_text(f"BOT đã ghi nhận {no_off} ngày nghỉ không phép cho {first_name} {last_name} ({username}).")
+            if no_off > 0:
+                if "sap" in message_text.lower() or "nghỉ phép" in message_text.lower():
+                    is_sap = 1
+                    # Gửi phản hồi
+                    update.message.reply_text(f"BOT đã ghi nhận {no_off} ngày nghỉ có phép cho {first_name} {last_name} ({username}).")
+                else:
+                    # Gửi phản hồi
+                    update.message.reply_text(f"BOT đã ghi nhận {no_off} ngày nghỉ không phép cho {first_name} {last_name} ({username}).")
 
             query = """
             INSERT INTO public."PCN_work_time" ("UserId", "Username", "Year", "Month", "Day", "Date", "No_off", "Is_sap")
